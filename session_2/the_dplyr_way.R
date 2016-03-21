@@ -27,7 +27,8 @@ library(readr)
 # 'gather' 'spread' 'separate' 'unite'
 
 # for the next examples I'll be using VER's daisy2 dataset
-daisy2 <- read_csv("https://raw.githubusercontent.com/donlelek/r-refresher/master/data/daisy2.csv")
+src <- "https://raw.githubusercontent.com/donlelek/r-refresher/master/data/daisy2.csv"
+daisy2 <- read_csv(src)
 
 # | Variable   | Description |
 # |------------|-------------|
@@ -233,7 +234,86 @@ df_sum %>%
 #### Merging datasets and joining tables ####
 # merging datasets is done using `bind_cols` and more commonly `bind_rows`
 # dplyr has a family of `join` functions that are designed after SQL
-# join commands, `left_join`, `right_join`, `inner_join` and `full_join` are 
-# the mort commonly used.
+# join commands, `left_join`, `right_join`, `inner_join`, 
+# and `full_join` are the most commonly used. In base R you can use 
+# `rbind`, `cbind` and `merge` but dplyr versions are faster and easier to use.
+# If you want to learn more about this I recommend reading:
+# http://r4ds.had.co.nz/relational-data.html
 
+# let's add some new observations to the first herd
+new_cows <- data.frame(region  = c(1, 1),
+                       herd    = c(1, 1),
+                       cow     = c(0, 0),
+                       parity  = c(3, 4),
+                       milk120 = c(3000, 3500))
 
+# and now put them together, of course if you want to make this permanent 
+# you have to reassign the result to daisy2 or a new dataset
+bind_rows(new_cows, daisy2)
+
+# what about columns? lets add a random number (can be used to subset)
+rnd <- data.frame(random = runif(9383)) # match the number of observations
+
+# add the new column
+bind_cols(rnd, daisy2)
+
+# let's say we have a dataset with cow treatments
+cow_treatments <- data.frame (cow = 0:5, 
+                              treatment = LETTERS[1:6])
+cow_treatments
+
+# left_join, search the key in the first dataset and pulls in all the matching
+# info from dataset 2
+daisy2 %>%
+  filter(cow < 10) %>%
+  left_join(cow_treatments, by = "cow") %>%
+  select(treatment, everything())
+
+# right_join is the opposite of left_join also, if `by` is not specified
+# all the common columns will be used and a message will be printed 
+daisy2 %>%
+  filter(cow < 10) %>%
+  right_join(cow_treatments) %>%
+  select(treatment, everything())
+
+# only observations in both datasets
+daisy2 %>%
+  filter(cow < 10) %>%
+  inner_join(cow_treatments, by = "cow") %>%
+  select(treatment, everything())
+
+# all observations from both datasets
+daisy2 %>%
+  filter(cow < 10) %>%
+  full_join(cow_treatments,  by = "cow") %>%
+  select(treatment, everything())
+
+# what if theres more than one treatment? 
+cow_treatments <- data.frame (cow = c(1, 2, 3, 4, 4, 5, 5, 6, 7), 
+                              treatment = LETTERS[1:9])
+cow_treatments
+
+# right_join didn't led to any duplication
+daisy2 %>%
+  filter(cow < 10) %>%
+  right_join(cow_treatments, by = "cow") %>%
+  select(cow, treatment, everything())
+
+# but left_join did because there are multiple matches
+daisy2 %>%
+  filter(cow < 10) %>%
+  left_join(cow_treatments, by = "cow") %>%
+  select(cow, treatment, everything())
+
+# there are tw more joins, these are special joins called filtering joins
+# `semi_join` keeps all observations in the first dataset that have a match 
+# in the second while `anti_join` drops all observations
+daisy2 %>%
+  filter(cow < 10) %>%
+  semi_join(cow_treatments, by = "cow") # no duplication!
+
+daisy2 %>%
+  filter(cow < 10) %>%
+  anti_join(cow_treatments, by = "cow")
+
+#### Questions? ####
