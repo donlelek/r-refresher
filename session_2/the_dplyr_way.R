@@ -3,12 +3,18 @@
 # March 23rd, 2016
 # Second part; The dplyr/tidyr way
 # Derek Price - dprice@upei.ca
+# https://github.com/donlelek/r-refresher
 
 # For this workshop we will be using mainly the packages 
 # `dplyr` and `tidyr`, both written by Hadley Wickham
-
+# `readr`, also by Wickham, is just a faster version of `read.csv`
 # First let's load them, this is a good time to install them if you 
 # haven't already
+install.packages("dplyr")
+install.packages("tidyr")
+install.packages("readr")
+
+# And now load them
 library(dplyr) 
 library(tidyr) 
 library(readr)
@@ -20,7 +26,7 @@ library(readr)
 # Each of these verbs have different versions and/or some helper functions.   
 # 
 # dplyr main verbs: 
-# 'select' 'filter' 'group_by' 'arrange' 'mutate' 'summarize' 
+# 'select' 'filter' 'group_by' 'arrange' 'mutate' 'summarise' 
 # also 'bind_rows' 'bind_cols' and the 'join' family of functions
 # 
 # tidyr main verbs:
@@ -75,7 +81,7 @@ select(daisy2, -contains("a"))
 select(daisy2, starts_with("c")) 
 select(daisy2, ends_with("t")) 
 select(daisy2, one_of(c("calv_dt", "vag_disch")))
-select(daisy2, one_of(c("calv", "vag"))) # careful, only accepts complete names
+select(daisy2, contains(("calv", "vag"))) # careful, only accepts complete names
 
 # regular expressions
 select(daisy2, matches("._."))
